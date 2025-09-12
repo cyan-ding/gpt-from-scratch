@@ -1,0 +1,14 @@
+[project]
+name = "gpt-from-scratch"
+version = "0.1.0"
+description = "My build of gpt from scratch"
+authors = [
+    { name="Cyan Ding", email="blueplus.d@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "numpy>=1.21.6",
+    "torch>=1.13.1",
+]
+
