@@ -88,17 +88,16 @@ xb, yb = get_batch("train")
 class BigramLanguageModel(nn.Module):
     def __init__(self):
         super().__init__()
-        self.token_embedding_table = nn.Embedding(vocab_size, n_embd) 
-        self.lm_head = nn.Linear(n_embd, vocab_size) # output layer that maps to vocab size
+        # for each token id, the bigram embedding table stores probabilities for all possible next token ids
+        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size) 
 
     def forward(self, idx, target=None): # idx and target are both (batch size (4), time (8))
-        tok_emb = self.token_embedding_table(idx) # logits is Tensor (batch size (4), time (8), channel (65))
-        # but pytorch wants 2d not B T C so we need to do a bit of transformation using view()
+        logits = self.token_embedding_table(idx) # logits is Tensor (batch size (4), time (8), channel (65))
        
-
         if target is None:
             loss = None
         else:  
+            # but pytorch wants 2d not B T C so we need to do a bit of transformation using view()
             B, T, C = logits.shape
             logits = logits.view(B*T, C)     
             target = target.view(B*T)
