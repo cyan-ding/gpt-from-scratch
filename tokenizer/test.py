@@ -18,7 +18,7 @@ from typing import Any
 
 text = "Ｕｎｉｃｏｄｅ! 🅤🅝🅘🅒🅞🅓🅔‽ 🇺‌🇳‌🇮‌🇨‌🇴‌🇩‌🇪! 😄 The very name strikes fear and awe into the hearts of programmers worldwide. We all know we ought to “support Unicode” in our software (whatever that means—like using wchar_t for all the strings, right?). But Unicode can be abstruse, and diving into the thousand-page Unicode Standard plus its dozens of supplementary annexes, reports, and notes can be more than a little intimidating. I don’t blame programmers for still finding the whole thing mysterious, even 30 years after Unicode’s inception."
 tokens = text.encode("utf-8") # raw bytes
-tokens = list(map(int, tokens)) # convert to a list of integers in range 0..255 for convenience
+tokens = list[int](map(int, tokens)) # convert to a list of integers in range 0..255 for convenience
 
 vocab_size = 276 # number of merges, if we had 256 tokens originally, there would be 20 merges done 
 num_merges = vocab_size - 256
@@ -54,17 +54,6 @@ def get_stats(bytes):
     return counts
 
 
-ids = list[Any](tokens) # copy list of tokens
-merges = {} # keep track of which tokens were merged into which 
-
-for i in range(num_merges):
-    stats = get_stats(ids) # get counts of each byte pair
-    pair = max(stats, key=stats.get) # find largest pair by value (number of occurences)
-    idx = 256 + i # create new token value
-    print(f"merging pair {pair} into a new token {idx}")
-    ids = merge(ids, pair, idx) # replace all instances of the pair with the new token
-    merges[pair] = idx 
-
 # this is my approach to decoding, basically create a reverse merge function that:
 # given a idx demerge into a pair
 # then, call this on the merges starting from the most recent merge.
@@ -99,10 +88,8 @@ for i in range(num_merges):
 
 # ____________________________
 # this is karpathy's approach 
-
 vocab = { idx: bytes([idx]) for idx in range(256)} # create a dict that maps ints to byte versions
-for (p0, p1), idx in merges.items():
-    vocab[idx] = vocab[p0] + vocab[p1] # iterate through merges, setting the newly minted tokens' values to be the bytes of the merged pair
+
 
 def decode(ids):
     tokens = b"".join(vocab[idx] for idx in ids) # basically just create a bytestream with the new tokens converted back to the sum of 
@@ -110,8 +97,27 @@ def decode(ids):
     return text
 
 
-print(decode([128]))
+def encode(chars: str):
+    # okay so we would obviously need some sort of merger 
+    merges = {}
+    ids = chars.encode("utf-8")
+    tokens = list[int](map(int, ids)) # convert to a list of integers in range 0..255 for convenience
 
+    for i in range(num_merges):
+        stats = get_stats(tokens) # get counts of each byte pair
+        pair = max(stats, key=stats.get) # find largest pair by value (number of occurences)
+        idx = 256 + i # create new token value
+        print(f"merging pair {pair} into a new token {idx}")
+        tokens = merge(tokens, pair, idx) # replace all instances of the pair with the new token
+        merges[pair] = idx 
+
+    # set vocab to help decode
+    for (p0, p1), idx in merges.items():
+        vocab[idx] = vocab[p0] + vocab[p1] # iterate through merges, setting the newly minted tokens' values to be the bytes of the merged pair
+
+    return tokens
+
+print(encode("hello world!"))
 
 
 
