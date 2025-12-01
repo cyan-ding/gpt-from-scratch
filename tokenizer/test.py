@@ -13,7 +13,6 @@
 # and you do that recursively until you can't find common pairs anymore
 # at that point you have a larger vocabulary but much smaller token sequence to feed into the LLM. 
 
-from typing import Any
 
 
 text = "Ｕｎｉｃｏｄｅ! 🅤🅝🅘🅒🅞🅓🅔‽ 🇺‌🇳‌🇮‌🇨‌🇴‌🇩‌🇪! 😄 The very name strikes fear and awe into the hearts of programmers worldwide. We all know we ought to “support Unicode” in our software (whatever that means—like using wchar_t for all the strings, right?). But Unicode can be abstruse, and diving into the thousand-page Unicode Standard plus its dozens of supplementary annexes, reports, and notes can be more than a little intimidating. I don’t blame programmers for still finding the whole thing mysterious, even 30 years after Unicode’s inception."
@@ -101,7 +100,7 @@ def encode(chars: str):
     # okay so we would obviously need some sort of merger 
     merges = {}
     ids = chars.encode("utf-8")
-    tokens = list[int](map(int, ids)) # convert to a list of integers in range 0..255 for convenience
+    tokens = list(map(int, ids)) # convert to a list of integers in range 0..255 for convenience
 
     for i in range(num_merges):
         stats = get_stats(tokens) # get counts of each byte pair
@@ -117,7 +116,7 @@ def encode(chars: str):
 
     return tokens
 
-print(encode("hello world!"))
+print(encode("hello world"))
 
 
 
